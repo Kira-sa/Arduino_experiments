@@ -1,1 +1,3 @@
 # Arduino_experiments
+
+Candy dispenser scheme drawed without servo, see in code...
