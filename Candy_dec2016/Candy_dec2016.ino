@@ -4,45 +4,135 @@
 
 Servo myservo;
 
-#define Btn_1Pin 7
-#define Btn_2Pin 8
-#define Btn_3Pin 9
-#define Btn_4Pin 10
-#define Btn_5Pin 11 //start game pin
-
 #define led_1Pin 2
 #define led_2Pin 3
 #define led_3Pin 4
 #define led_4Pin 5
 #define led_5Pin 6
 
+#define Btn_1Pin 7
+#define Btn_2Pin 8
+#define Btn_3Pin 9
+#define Btn_4Pin 10
+#define Btn_5Pin 11 //start game pin
+
 #define speakerPin 12
 #define servPin 13
 
 //NOTES
-#define A3  4545  //110
-#define Bb3 4291  //116.5
-#define B3  4048  //123.5
-#define C3  3822  //130.8
-#define Db3 3607  //138.6
-#define D3  3406  //146.8
-#define Eb3 3213  //155.6
-#define E3  3034  //164.8
-#define F3  2864  //174.6
-#define Fs3 2702  //185
-#define G3  2551  //196
-#define Ab3 2407  //207.7
+// #define A4  2273  //220
+// #define Bb4 2145  //233.1
+// #define B4  2025  //246.9
+// #define C4  1911  //261.6
+// #define Db4 1804  //277.2
+// #define D4  1702  //293.7
+// #define Eb4 1607  //311.1
+// #define E4  1517  //329.6
+// #define F4  1432  //349.2
+// #define Fs4 1351  //370
+// #define G4  1275  //392
+// #define Ab4 1204  //415.3
+
+#define NOTE_B0  31
+#define NOTE_C1  33
+#define NOTE_CS1 35
+#define NOTE_D1  37
+#define NOTE_DS1 39
+#define NOTE_E1  41
+#define NOTE_F1  44
+#define NOTE_FS1 46
+#define NOTE_G1  49
+#define NOTE_GS1 52
+#define NOTE_A1  55
+#define NOTE_AS1 58
+#define NOTE_B1  62
+#define NOTE_C2  65
+#define NOTE_CS2 69
+#define NOTE_D2  73
+#define NOTE_DS2 78
+#define NOTE_E2  82
+#define NOTE_F2  87
+#define NOTE_FS2 93
+#define NOTE_G2  98
+#define NOTE_GS2 104
+#define NOTE_A2  110
+#define NOTE_AS2 117
+#define NOTE_B2  123
+#define NOTE_C3  131
+#define NOTE_CS3 139
+#define NOTE_D3  147
+#define NOTE_DS3 156
+#define NOTE_E3  165
+#define NOTE_F3  175
+#define NOTE_FS3 185
+#define NOTE_G3  196
+#define NOTE_GS3 208
+#define NOTE_A3  220
+#define NOTE_AS3 233
+#define NOTE_B3  247
+#define NOTE_C4  262
+#define NOTE_CS4 277
+#define NOTE_D4  294
+#define NOTE_DS4 311
+#define NOTE_E4  330
+#define NOTE_F4  349
+#define NOTE_FS4 370
+#define NOTE_G4  392
+#define NOTE_GS4 415
+#define NOTE_A4  440
+#define NOTE_AS4 466
+#define NOTE_B4  494
+#define NOTE_C5  523
+#define NOTE_CS5 554
+#define NOTE_D5  587
+#define NOTE_DS5 622
+#define NOTE_E5  659
+#define NOTE_F5  698
+#define NOTE_FS5 740
+#define NOTE_G5  784
+#define NOTE_GS5 831
+#define NOTE_A5  880
+#define NOTE_AS5 932
+#define NOTE_B5  988
+#define NOTE_C6  1047
+#define NOTE_CS6 1109
+#define NOTE_D6  1175
+#define NOTE_DS6 1245
+#define NOTE_E6  1319
+#define NOTE_F6  1397
+#define NOTE_FS6 1480
+#define NOTE_G6  1568
+#define NOTE_GS6 1661
+#define NOTE_A6  1760
+#define NOTE_AS6 1865
+#define NOTE_B6  1976
+#define NOTE_C7  2093
+#define NOTE_CS7 2217
+#define NOTE_D7  2349
+#define NOTE_DS7 2489
+#define NOTE_E7  2637
+#define NOTE_F7  2794
+#define NOTE_FS7 2960
+#define NOTE_G7  3136
+#define NOTE_GS7 3322
+#define NOTE_A7  3520
+#define NOTE_AS7 3729
+#define NOTE_B7  3951
+#define NOTE_C8  4186
+#define NOTE_CS8 4435
+#define NOTE_D8  4699
+#define NOTE_DS8 4978
 
 #define songs 2
 
 // tone / duration / button
-int song1[3][5] = {{C3, D3, E3, D3, C3 }, {1000, 1000, 1000, 1000, 1000}, {1, 1, 1, 1, 1}};
+int song1[3][5] = {{NOTE_C4, NOTE_G3, NOTE_G3, NOTE_A3, NOTE_G3}, {4, 8, 4, 8, 4}, {4, 4, 4, 4, 4}};
 
-int win[3][3] = {{C3, E3, G3}, {64, 64, 64}, {1, 3, 5}};
-int lose[3][3] = {{Eb3, Bb3, F3}, {64, 64, 128}, {5, 3, 1}};
+int win[3][3] = {{NOTE_C4, NOTE_C4, NOTE_C4}, {4, 4, 4}, {0, 2, 4}};
+int lose[3][3] = {{NOTE_G3, NOTE_G3, NOTE_G3}, {4, 4, 4}, {4, 2, 0}};
 
 long tempo = 10000;
-int pause = 2000;
+int pause = 1000;
 int difficulty = 0;
 int rest_count = 100;
 int pos = 0;
@@ -51,34 +141,34 @@ int keyCount = 5;
 void setup() {
   Serial.begin(9600); //debug
   pinMode(speakerPin, OUTPUT);
-  pinMode(Btn_1Pin, OUTPUT);
-  pinMode(Btn_2Pin, OUTPUT);
-  pinMode(Btn_3Pin, OUTPUT);
-  pinMode(Btn_4Pin, OUTPUT);
-  pinMode(Btn_5Pin, OUTPUT);
+
+  pinMode(Btn_1Pin, INPUT);
+  pinMode(Btn_2Pin, INPUT);
+  pinMode(Btn_3Pin, INPUT);
+  pinMode(Btn_4Pin, INPUT);
+  pinMode(Btn_5Pin, INPUT);
 
   pinMode(led_1Pin, OUTPUT);
   pinMode(led_2Pin, OUTPUT);
   pinMode(led_3Pin, OUTPUT);
   pinMode(led_4Pin, OUTPUT);
   pinMode(led_5Pin, OUTPUT);
-
 }
 
-void playTone(int tone, int duration) {
+void playTone(int tone, int duration) { // playTone(melody[i], duration[i] * tempo);
   long elapsed_time = 0;
   if (tone > 0) {
     while (elapsed_time < duration) {
       digitalWrite(speakerPin, HIGH);
-      delayMicroseconds(tone);
+      delay(tone);
       digitalWrite(speakerPin, LOW);
-      delayMicroseconds(tone); 
+      delay(tone); 
       elapsed_time += (tone * 2);
     }
   }
   else {
     for (int j = 0; j < rest_count; j++) {
-      delayMicroseconds(duration);
+      delay(duration);
     }
   }
 }
@@ -86,48 +176,58 @@ void playTone(int tone, int duration) {
 void playSong(int melody[], int duration[], int count, int led[]) {
   Serial.println("...playing");
   for (int i = 0; i < count; i++){
-    Serial.println(i);
+    int noteDuration = 1000 / duration[i];
     digitalWrite(led_1Pin + led[i], HIGH);
-    playTone(melody[i], duration[i] * tempo);
+    tone(speakerPin, melody[i], noteDuration);
     digitalWrite(led_1Pin + led[i], LOW);
-    delayMicroseconds(pause);
+    delay(noteDuration * 1.3); //pause
+    noTone(speakerPin);
   }
 }
 
 void playNote(int note, int duration, int led) {
+  int noteDuration = 1000 / duration;
   digitalWrite(led_1Pin + led, HIGH);
-  playTone(note, duration * tempo);
+  tone(speakerPin, note, 1000 / duration);
   digitalWrite(led_1Pin + led, LOW);
-  delayMicroseconds(pause);
+  delay(noteDuration * 1.3);
+  noTone(speakerPin);
 }
 
 int checkAnswer(int melody[], int songNumber[]) {
   Serial.println("checking answer");
   int result = 0;
+  int completed = 0;
+  int size = sizeof(melody[0])/3;
 
-  for (int j = 0; j < sizeof(songNumber[2]); j++) {
+  for (int j = 0; j < size; j++) {
+    Serial.print("song len = ");
+    Serial.println(size);
     int answerKey = songNumber[j];
-    for(;;){
+    for(;;) {
       for (int i = 0; i < keyCount; i++) {
         int keyPin = Btn_1Pin + i;
         int keyUp = digitalRead(keyPin);
         if(keyUp == HIGH) {
           Serial.println("wait button");
-          Serial.println(answerKey);
+          Serial.println(i);
           if(i == answerKey){
             playNote(melody[j], 32, i); //сыграть ноту и моргнуть светодиодом
             //ToDo: обновить информацию на экране (реализовать прогресс прохождения мелодии)
-            delay(300);
+            delay(1000);
             result++;
+            continue;
           }
           else return 0; //проиграл
         }
       }
+      if (completed >= size)
+        break;
     }
   }
   Serial.print("result ");
   Serial.println(result);
-  return result; //победил?
+  return result; 
 }
 
 void getCandy() {
@@ -151,6 +251,8 @@ void playGame() {
   switch(0) {
     case 0:
       Serial.println("start play song1");
+      Serial.println(sizeof(song1[0])/2);
+
       playSong(song1[0], song1[1], sizeof(song1[0])/2, song1[2]);
       result = checkAnswer(song1[0] ,song1[2]);
       break;
