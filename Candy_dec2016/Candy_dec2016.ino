@@ -126,10 +126,10 @@ Servo myservo;
 #define songs 2
 
 // tone / duration / button
-int song1[3][5] = {{NOTE_C4, NOTE_G3, NOTE_G3, NOTE_A3, NOTE_G3}, {4, 8, 4, 8, 4}, {4, 4, 4, 4, 4}};
+int song1[3][5] = {{NOTE_C4, NOTE_G3, NOTE_G3, NOTE_A3, NOTE_G3}, {4, 2, 4, 2, 4}, {4, 3, 2, 3, 4}};
 
-int win[3][3] = {{NOTE_C4, NOTE_C4, NOTE_C4}, {4, 4, 4}, {0, 2, 4}};
-int lose[3][3] = {{NOTE_G3, NOTE_G3, NOTE_G3}, {4, 4, 4}, {4, 2, 0}};
+int win[3][3] = {{NOTE_A5, NOTE_A5, NOTE_A5}, {4, 4, 4}, {0, 2, 4}};
+int lose[3][3] = {{NOTE_D2, NOTE_D2, NOTE_D2}, {4, 4, 4}, {4, 2, 0}};
 
 long tempo = 10000;
 int pause = 1000;
@@ -198,12 +198,15 @@ int checkAnswer(int melody[], int songNumber[]) {
   Serial.println("checking answer");
   int result = 0;
   int completed = 0;
-  int size = sizeof(melody[0])/3;
+  int size = sizeof(melody);
 
   for (int j = 0; j < size; j++) {
     Serial.print("song len = ");
     Serial.println(size);
     int answerKey = songNumber[j];
+    Serial.print("answer = ");
+    Serial.println(answerKey);
+    
     for(;;) {
       for (int i = 0; i < keyCount; i++) {
         int keyPin = Btn_1Pin + i;
@@ -216,7 +219,7 @@ int checkAnswer(int melody[], int songNumber[]) {
             //ToDo: обновить информацию на экране (реализовать прогресс прохождения мелодии)
             delay(1000);
             result++;
-            continue;
+            break;
           }
           else return 0; //проиграл
         }
