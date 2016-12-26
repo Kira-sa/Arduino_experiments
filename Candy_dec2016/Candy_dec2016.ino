@@ -244,16 +244,23 @@ int checkAnswer(int melody[], int songNumber[], int songLen) {
   int completed = 0;
 
   for (int i = 0; i < songLen; i++) {
+    int answerKey = songNumber[i];
+    int button = waitButton();
+    
     Serial.print("song len = ");
     Serial.println(songLen);
-    int answerKey = songNumber[i];
     Serial.print("answer = ");
     Serial.println(answerKey);
 
-    int button = waitButton();
-
     if(button == answerKey) {
-      //ToDo - обновить информацию на экране
+      completed++;
+      lcd.setCursor(9, 2);
+      lcd.print(completed);
+      lcd.setCursor(11, 2);
+      lcd.print("/");
+      lcd.setCursor(12, 2);
+      lcd.print(songLen);
+
       playNote(melody[i], 32, button);
       delay(200);
       result++;
@@ -384,6 +391,7 @@ void playGame() {
     Serial.println("You WIN!");
     playSong(win[0], win[1], sizeof(win[0])/2, win[2]); // играем победную мелодию
     for (int i = 0; i < difficulty; i++){
+      if (difficulty > 2 ) break;
       giveCandy();  
     }
   }
@@ -455,7 +463,7 @@ void loop() {
     updateLvl();
   }
   else if(btn4 == HIGH) { //специальный экран
-    difficulty = -1;
+    difficulty = 4;
     updateLvl();
     //показать что-нибудь красивое, например падающие снежинки :)
   }
