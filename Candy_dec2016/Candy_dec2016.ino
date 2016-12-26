@@ -1,8 +1,11 @@
 // new candy dispenser for 2016-2017
 
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>
 #include <Servo.h>
 
 Servo myservo;
+LiquidCrystal_I2C lcd(0x27,20,4);
 
 #define led_1Pin 2
 #define led_2Pin 3
@@ -117,12 +120,46 @@ int song1[3][5] = {{NOTE_C4, NOTE_G3, NOTE_G3, NOTE_A3, NOTE_G3}, {4, 2, 4, 2, 4
 int win[3][3] = {{NOTE_A5, NOTE_A5, NOTE_A5}, {4, 4, 4}, {0, 2, 4}};
 int lose[3][3] = {{NOTE_D2, NOTE_D2, NOTE_D2}, {4, 4, 4}, {4, 2, 0}};
 
+boolean gameOver, gameStarted;
+
 long tempo = 10000;
 int pause = 1000;
-int difficulty = 0;
+int difficulty = 1;
+const char* s_difficulty[] = {"Demo", "Normal", "Hard"};
+//0 - demo
+//1 - normal
+//2 - hard
 int rest_count = 100;
 int pos = 0;
 int keyCount = 5;
+byte tag[8] = {
+  B00000,
+  B10001,
+  B01010,
+  B00100,
+  B10001,
+  B01010,
+  B00100
+};
+byte emptyCube[8] = {
+  B00000,
+  B11111,
+  B10001,
+  B10001,
+  B10001,
+  B11111,
+  B00000
+};
+byte fullCube[8] = {
+  B00000,
+  B11111,
+  B11111,
+  B11111,
+  B11111,
+  B11111,
+  B00000
+};
+
 
 void setup() {
   Serial.begin(9600); //debug
@@ -139,9 +176,16 @@ void setup() {
   pinMode(led_3Pin, OUTPUT);
   pinMode(led_4Pin, OUTPUT);
   pinMode(led_5Pin, OUTPUT);
+
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(1, 4);
+  lcd.print("HAPPY NEW YEAR!");
+
+  showStartScreen();
 }
 
-void playTone(int tone, int duration) { // playTone(melody[i], duration[i] * tempo);
+void playTone(int tone, int duration) {
   long elapsed_time = 0;
   if (tone > 0) {
     while (elapsed_time < duration) {
@@ -199,10 +243,10 @@ int checkAnswer(int melody[], int songNumber[], int songLen) {
   int result = 0;
   int completed = 0;
 
-  for (int j = 0; j < songLen; j++) {
+  for (int i = 0; i < songLen; i++) {
     Serial.print("song len = ");
     Serial.println(songLen);
-    int answerKey = songNumber[j];
+    int answerKey = songNumber[i];
     Serial.print("answer = ");
     Serial.println(answerKey);
 
@@ -210,7 +254,7 @@ int checkAnswer(int melody[], int songNumber[], int songLen) {
 
     if(button == answerKey) {
       //ToDo - обновить информацию на экране
-      playNote(melody[j], 32, button);
+      playNote(melody[i], 32, button);
       delay(200);
       result++;
     }
@@ -221,7 +265,7 @@ int checkAnswer(int melody[], int songNumber[], int songLen) {
   return result; 
 }
 
-void getCandy() {
+void giveCandy() {
   myservo.attach(servPin);
   for(pos = 0; pos < 180; pos += 1) { //от 0 до 180 градусов с шагом в 1 градус 
     myservo.write(pos);
@@ -234,53 +278,185 @@ void getCandy() {
   myservo.detach();
 }
 
-void playGame() {
-  difficulty = 1;
-  //ToDo: обновляем картинку на экране
-  int songNumber = random(songs); 
-  int result = 0;
-  switch(0) {
-    case 0:
-      Serial.println("start play song1");
-      Serial.println(sizeof(song1[0])/2);
+void showProgress() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print(s_difficulty[difficulty]);
+  lcd.setCursor(0, 2);
+  lcd.print("Progress: ");
+}
 
+void showWin() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("* * ********** * * *");
+  lcd.setCursor(0, 1);
+  lcd.print("* * *YOU WIN!* * * *");
+  lcd.setCursor(0, 2);
+  lcd.print("* * ********** * * *");
+  lcd.setCursor(0, 3);
+  lcd.print("HAPPY NEW 2017 YEAR!");
+}
+
+void showLose() {
+  lcd.clear();
+  lcd.setCursor(5, 1);
+  lcd.print("GAME OVER...");
+  lcd.setCursor(0, 3);
+  lcd.print("HAPPY NEW 2017 YEAR!");
+}
+
+int playDemo() {
+  showProgress();
+
+  Serial.println("start play song1");
+  Serial.println(sizeof(song1[0])/2);
+
+  playSong(song1[0], song1[1], sizeof(song1[0])/2, song1[2]);
+  int result = checkAnswer(song1[0] ,song1[2], sizeof(song1[0]) / 2);
+  return result;
+}
+
+int playNormal() {
+  showProgress();
+
+  int result = 0;
+  int songNumber = random(2); //нормальных песен
+
+  switch(songNumber) {
+    case 0:
       playSong(song1[0], song1[1], sizeof(song1[0])/2, song1[2]);
       result = checkAnswer(song1[0] ,song1[2], sizeof(song1[0]) / 2);
       break;
     case 1:
-//      playSong();
-      break;
-    case 2:
-//      playSong();
-      break;
-    default:
-//      playSong(); //error
+      playSong(song1[0], song1[1], sizeof(song1[0])/2, song1[2]);
+      result = checkAnswer(song1[0] ,song1[2], sizeof(song1[0]) / 2);
       break;
   }
-  //ToDo:  проверяем результат и награждаем игрока если он победил
+  return result;
+}
+
+int playHard() {
+  showProgress();
+
+  int result = 0;
+  int songNumber = random(2); //сложных песен
+
+  switch(songNumber) {
+    case 0:
+      playSong(song1[0], song1[1], sizeof(song1[0])/2, song1[2]);
+      result = checkAnswer(song1[0] ,song1[2], sizeof(song1[0]) / 2);
+      break;
+    case 1:
+      playSong(song1[0], song1[1], sizeof(song1[0])/2, song1[2]);
+      result = checkAnswer(song1[0] ,song1[2], sizeof(song1[0]) / 2);
+      break;
+  }
+  return result;
+}
+
+int playAnimation() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Some cute animation");
+  return 1;
+}
+
+void playGame() {
+  int result = 0;
+  switch(difficulty) {
+    case 0:
+      result = playDemo();
+      break;
+    case 1:
+      result = playNormal();
+      break;
+    case 2:
+      result = playHard();
+      break;
+    case 3:
+      result = playAnimation();
+      break;
+  }
+
   if (result > 0) {
-    //ToDo: обновляем экран, сообщяя о победе
+    showWin();
     Serial.println("You WIN!");
     playSong(win[0], win[1], sizeof(win[0])/2, win[2]); // играем победную мелодию
-    //ToDo: даем конфетки в зависимости от выбранной сложности
     for (int i = 0; i < difficulty; i++){
-      getCandy();  
+      giveCandy();  
     }
   }
   else {
-    //ToDo: обновляем экран, сообщяя о проигрыше
+    showLose();
     Serial.println("You LOSE!");
     playSong(lose[0], lose[1], sizeof(lose[0])/2, lose[2]);//играем проигрышную мелодию
   }
   delay(1000);
 }
 
-void loop() {
-  //ToDo: нарисовать начальный экран, и пока не нажмут старт обрабатывать нажатия на остальные кнопки
-  int start = digitalRead(Btn_5Pin);
-  if(start == HIGH) {
-    Serial.println("start new game");
-    playGame();
+void showStartScreen() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("WELCOME TO CANDYGAME");
+
+  lcd.setCursor(2, 1);
+  lcd.print("chose difficulty:");
+  
+  for (int i = 0; i < 4; i++) {
+    lcd.createChar(0, tag);
+    lcd.setCursor(i + i * 3, 2);
+    lcd.write(byte(0));
+  }
+
+  updateLvl();
+  lcd.setCursor(15, 3);
+  lcd.print("START");
+}
+
+void updateLvl() {
+  for (int i = 0; i < 4; i++) {
+    if (i == difficulty) {
+      lcd.createChar(1, fullCube);
+      lcd.setCursor(i + i * 3, 3);
+      lcd.write(byte(1));
+    }
+    else {
+      lcd.createChar(2, emptyCube);
+      lcd.setCursor(i + i * 3, 3);
+      lcd.write(byte(2));
+    }
   }
 }
 
+void loop() {
+  int btn1  = digitalRead(Btn_1Pin);
+  int btn2  = digitalRead(Btn_2Pin);
+  int btn3  = digitalRead(Btn_3Pin);
+  int btn4  = digitalRead(Btn_4Pin);
+  int start = digitalRead(Btn_5Pin);
+
+  if(start == HIGH) {
+    Serial.println("start new game");
+    playGame();
+    delay(500);
+    showStartScreen();
+  }
+  else if(btn1 == HIGH) { //demo lvl
+    difficulty = 0;
+    updateLvl();
+  }
+  else if(btn2 == HIGH) { //normal lvl
+    difficulty = 1;
+    updateLvl();
+  }
+  else if(btn3 == HIGH) { //hard lvl
+    difficulty = 2;
+    updateLvl();
+  }
+  else if(btn4 == HIGH) { //специальный экран
+    difficulty = -1;
+    updateLvl();
+    //показать что-нибудь красивое, например падающие снежинки :)
+  }
+}
