@@ -1,4 +1,4 @@
-// new candy dispenser
+// new candy dispenser for 2016-2017
 
 #include <Servo.h>
 
@@ -18,20 +18,6 @@ Servo myservo;
 
 #define speakerPin 12
 #define servPin 13
-
-//NOTES
-// #define A4  2273  //220
-// #define Bb4 2145  //233.1
-// #define B4  2025  //246.9
-// #define C4  1911  //261.6
-// #define Db4 1804  //277.2
-// #define D4  1702  //293.7
-// #define Eb4 1607  //311.1
-// #define E4  1517  //329.6
-// #define F4  1432  //349.2
-// #define Fs4 1351  //370
-// #define G4  1275  //392
-// #define Ab4 1204  //415.3
 
 #define NOTE_B0  31
 #define NOTE_C1  33
@@ -194,39 +180,41 @@ void playNote(int note, int duration, int led) {
   noTone(speakerPin);
 }
 
-int checkAnswer(int melody[], int songNumber[]) {
+int waitButton() {
+  for(;;) {
+    for(int i = 0; i < keyCount; i++) {
+      int keyPin = Btn_1Pin + i;
+      int keyUp = digitalRead(keyPin);
+      if(keyUp == HIGH) {
+        Serial.print("Button: ");
+        Serial.println(keyPin - 7);
+        return keyPin - 7;
+      }
+    }
+  }
+}
+
+int checkAnswer(int melody[], int songNumber[], int songLen) {
   Serial.println("checking answer");
   int result = 0;
   int completed = 0;
-  int size = sizeof(melody);
 
-  for (int j = 0; j < size; j++) {
+  for (int j = 0; j < songLen; j++) {
     Serial.print("song len = ");
-    Serial.println(size);
+    Serial.println(songLen);
     int answerKey = songNumber[j];
     Serial.print("answer = ");
     Serial.println(answerKey);
-    
-    for(;;) {
-      for (int i = 0; i < keyCount; i++) {
-        int keyPin = Btn_1Pin + i;
-        int keyUp = digitalRead(keyPin);
-        if(keyUp == HIGH) {
-          Serial.println("wait button");
-          Serial.println(i);
-          if(i == answerKey){
-            playNote(melody[j], 32, i); //сыграть ноту и моргнуть светодиодом
-            //ToDo: обновить информацию на экране (реализовать прогресс прохождения мелодии)
-            delay(1000);
-            result++;
-            break;
-          }
-          else return 0; //проиграл
-        }
-      }
-      if (completed >= size)
-        break;
+
+    int button = waitButton();
+
+    if(button == answerKey) {
+      //ToDo - обновить информацию на экране
+      playNote(melody[j], 32, button);
+      delay(200);
+      result++;
     }
+    else return 0;
   }
   Serial.print("result ");
   Serial.println(result);
@@ -257,7 +245,7 @@ void playGame() {
       Serial.println(sizeof(song1[0])/2);
 
       playSong(song1[0], song1[1], sizeof(song1[0])/2, song1[2]);
-      result = checkAnswer(song1[0] ,song1[2]);
+      result = checkAnswer(song1[0] ,song1[2], sizeof(song1[0]) / 2);
       break;
     case 1:
 //      playSong();
