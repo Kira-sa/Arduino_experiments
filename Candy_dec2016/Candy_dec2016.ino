@@ -297,6 +297,12 @@ int waitButton() {
   }
 }
 
+void showHint(int answer) {
+  lcd.createChar(0, B00001);
+  lcd.setCursor(15 + answer, 0);
+  lcd.write(byte(0));
+}
+
 int checkAnswer(int melody[], int songNumber[], int songLen) {
   // Serial.println("checking answer");
   int result = 0;
@@ -305,7 +311,7 @@ int checkAnswer(int melody[], int songNumber[], int songLen) {
   for (int i = 0; i < songLen; i++) {
     int answerKey = songNumber[i] - 1;
     int button = waitButton();
-    
+    showHint(answerKey);
     // Serial.print("song len = ");
     // Serial.println(songLen);
     // Serial.print("answer = ");
@@ -515,11 +521,15 @@ void showStartScreen() {
 }
 
 void updateLvl() {
+  const char* s[] = {"Demo", "Norm", "Hard", "Img"};
+
   for (int i = 0; i < 4; i++) {
     if (i == difficulty) {
       lcd.createChar(1, fullCube);
       lcd.setCursor(i + i * 3, 3);
       lcd.write(byte(1));
+      lcd.setCursor(16, 2);
+      lcd.print(s[difficulty]);
     }
     else {
       lcd.createChar(2, emptyCube);
