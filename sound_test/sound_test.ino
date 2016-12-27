@@ -1,122 +1,140 @@
 #define speakerPin 12
 
-#define NOTE_B0  31
-#define NOTE_C1  33
-#define NOTE_CS1 35
-#define NOTE_D1  37
-#define NOTE_DS1 39
-#define NOTE_E1  41
-#define NOTE_F1  44
-#define NOTE_FS1 46
-#define NOTE_G1  49
-#define NOTE_GS1 52
-#define NOTE_A1  55
-#define NOTE_AS1 58
-#define NOTE_B1  62
-#define NOTE_C2  65
-#define NOTE_CS2 69
-#define NOTE_D2  73
-#define NOTE_DS2 78
-#define NOTE_E2  82
-#define NOTE_F2  87
-#define NOTE_FS2 93
-#define NOTE_G2  98
-#define NOTE_GS2 104
-#define NOTE_A2  110
-#define NOTE_AS2 117
-#define NOTE_B2  123
-#define NOTE_C3  131
-#define NOTE_CS3 139
-#define NOTE_D3  147
-#define NOTE_DS3 156
-#define NOTE_E3  165
-#define NOTE_F3  175
-#define NOTE_FS3 185
-#define NOTE_G3  196
-#define NOTE_GS3 208
-#define NOTE_A3  220
-#define NOTE_AS3 233
-#define NOTE_B3  247
-#define NOTE_C4  262
-#define NOTE_CS4 277
-#define NOTE_D4  294
-#define NOTE_DS4 311
-#define NOTE_E4  330
-#define NOTE_F4  349
-#define NOTE_FS4 370
-#define NOTE_G4  392
-#define NOTE_GS4 415
-#define NOTE_A4  440
-#define NOTE_AS4 466
-#define NOTE_B4  494
-#define NOTE_C5  523
-#define NOTE_CS5 554
-#define NOTE_D5  587
-#define NOTE_DS5 622
-#define NOTE_E5  659
-#define NOTE_F5  698
-#define NOTE_FS5 740
-#define NOTE_G5  784
-#define NOTE_GS5 831
-#define NOTE_A5  880
-#define NOTE_AS5 932
-#define NOTE_B5  988
-#define NOTE_C6  1047
-#define NOTE_CS6 1109
-#define NOTE_D6  1175
-#define NOTE_DS6 1245
-#define NOTE_E6  1319
-#define NOTE_F6  1397
-#define NOTE_FS6 1480
-#define NOTE_G6  1568
-#define NOTE_GS6 1661
-#define NOTE_A6  1760
-#define NOTE_AS6 1865
-#define NOTE_B6  1976
-#define NOTE_C7  2093
-#define NOTE_CS7 2217
-#define NOTE_D7  2349
-#define NOTE_DS7 2489
-#define NOTE_E7  2637
-#define NOTE_F7  2794
-#define NOTE_FS7 2960
-#define NOTE_G7  3136
-#define NOTE_GS7 3322
-#define NOTE_A7  3520
-#define NOTE_AS7 3729
-#define NOTE_B7  3951
-#define NOTE_C8  4186
-#define NOTE_CS8 4435
-#define NOTE_D8  4699
-#define NOTE_DS8 4978
+#define B0  31
+#define C1  33
+#define CS1 35
+#define D1  37
+#define DS1 39
+#define E1  41
+#define F1  44
+#define FS1 46
+#define G1  49
+#define GS1 52
+#define A1  55
+#define AS1 58
+#define B1  62
+#define C2  65
+#define CS2 69
+#define D2  73
+#define DS2 78
+#define E2  82
+#define F2  87
+#define FS2 93
+#define G2  98
+#define GS2 104
+#define A2  110
+#define AS2 117
+#define B2  123
+#define C3  131
+#define CS3 139
+#define D3  147
+#define DS3 156
+#define E3  165
+#define F3  175
+#define FS3 185
+#define G3  196
+#define GS3 208
+#define A3  220
+#define AS3 233
+#define B3  247
+#define C4  262 // ------
+#define CS4 277
+#define D4  294
+#define DS4 311
+#define E4  330
+#define F4  349
+#define FS4 370
+#define G4  392
+#define GS4 415
+#define A4  440
+#define AS4 466
+#define B4  494
+#define C5  523
+#define CS5 554
+#define D5  587
+#define DS5 622
+#define E5  659
+#define F5  698
+#define FS5 740
+#define G5  784
+#define GS5 831
+#define A5  880
+#define AS5 932
+#define B5  988
+#define C6  1047
+#define CS6 1109
+#define D6  1175
+#define DS6 1245
+#define E6  1319
+#define F6  1397
+#define FS6 1480
+#define G6  1568
+#define GS6 1661
+#define A6  1760
+#define AS6 1865
+#define B6  1976
+#define C7  2093
+#define CS7 2217
+#define D7  2349
+#define DS7 2489
+#define E7  2637
+#define F7  2794
+#define FS7 2960
+#define G7  3136
+#define GS7 3322
+#define A7  3520
+#define AS7 3729
+#define B7  3951
+#define C8  4186
+#define CS8 4435
+#define D8  4699
+#define DS8 4978
 
 int song1[3][5] = {
-	{NOTE_C4, NOTE_G3, NOTE_G3, NOTE_A3, NOTE_G3}, 
+	{C4, G3, G3, A3, G3}, 
 	{4, 2, 4, 2, 4}, 
 	{4, 3, 2, 3, 4}};
 
 int el[3][8] = {
-	{NOTE_C4, NOTE_A4, NOTE_A4, NOTE_G4, NOTE_A4, NOTE_F4, NOTE_C4, NOTE_C4}, 
+	{C4, A4, A4, G4, A4, F4, C4, C4}, 
 	{4, 4, 4, 4, 4, 4, 4, 4},
 	{1, 5, 5, 4, 5, 3, 1, 1}};
 
-// int melody1[3][9] = {
-// 	{NOTE_E5, NOTE_DS5, NOTE_E5, NOTE_DS5, NOTE_E5, NOTE_B5, NOTE_D5, NOTE_C5, NOTE_A5}, 
-//   {4, 4, 4, 4, 4, 4, 4, 4, 8}
-// };
-// playSong(melody1[0], melody1[1], sizeof(melody1[0])/2, melody1[2]); //к элизе
-
-int melody2[3][28] = {
-  {NOTE_C4, NOTE_A4, NOTE_A4, NOTE_G4, NOTE_A4, NOTE_F4, NOTE_C4, NOTE_C4, NOTE_C4, NOTE_A4, NOTE_A4, NOTE_AS4, NOTE_G4, NOTE_C5, NOTE_C5, NOTE_D4, NOTE_D4, NOTE_AS5, NOTE_AS5, NOTE_A5, NOTE_G4, NOTE_F4, NOTE_F4, NOTE_A5, NOTE_A5, NOTE_G4, NOTE_A5, NOTE_F4}, 
-  {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 8, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 8},
-  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+int el1[3][14] = {
+	{C4, A4, A4, G4, A4, F4, C4, C4, C4, A4, A4, AS4, G4, C5}, 
+	{4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,   4,  2},
+	{1,  5,  5,  4,  5,  3,  1,  1,  1,  4,  4,  5,   3,  5}
 };
 
-// int melody3[3][26] {
-//   {Db4, Db4, Db4, B4, A4, A4, A4, B4, Db4, E4, NOTE_A5, Db5, Ab4, Ab4, NOTE_A5, Fs4, Fs4, NOTE_G4, NOTE_E5, NOTE_A5, Ab4, Ab4, Fs4, Fs4, NOTE_E5, NOTE_E5},
-//   {4, 4, 4, 8, 4, 4, 8, 8, 4, 4, 4, 4, 8, 48, 16, 16, 16, 16, 96, 8, 8, 48, 16, 4, 4, 16},
-//   {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-// };
+int el2[3][14] = {
+	{C5, D4, D4, AS4, AS4, A4, G4, F4, F4, A4, A4, G4, A4, F4}, 
+	{4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,   4,  2},
+	{1,  5,  5,  4,  5,  3,  1,  1,  1,  4,  4,  5,   3,  5}
+};
+
+int el_f[3][28] = {
+	{C4, A4, A4, G4, A4, F4, C4, C4, C4, A4, A4, AS4, G4, C5, C5, D4, D4, AS4, AS4, A4, G4, F4, F4, A4, A4, G4, A4, F4},
+	{4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,   4,  2,  4,  4,  4,  4,   4,   4,  4,  4,  4,  4,  4,  4,  4,  2},
+	{1,  5,  5,  4,  5,  3,  1,  1,  1,  4,  4,  5,   3,  5,  1,  5,  5,  4,   5,   3,  1,  1,  1,  4,  4,  5,  3,  5}
+};
+
+int knz1[3][13] = {
+	{B3, B3, B4, FS4, A4, G4, E4, D4, D4, D5, C5, C5, B4},
+	{4,  4,  4,  4,   4,  4,  2,  4,  4,  4,  4,  4,  4 },
+	{1,  1,  5,  3,   5,  4,  3,  2,  2,  5,  4,  4,  3}
+};
+
+int knz2[3][13] = {
+	{D5, C5, A4, FS4, C5, B4, B4, B3, B3, B4, A4, A4, G4},
+	{4,  4,  4,  4,   4,  4,  2,  4,  4,  4,  4,  4,  4 },
+	{5,  4,  3,  2,   3,  2,  2,  1,  1,  5,  4,  4,  3}
+};
+
+int abba1[3][37] = {
+	{CS4, D4, E4, CS5, CS4, D4, E4, B4, CS4, DS4, F4, 0, A4, GS4, FS4, FS4, GS4, FS4, E4, E4, E4, FS4, E4, E4, E4, FS4, E4, D4, CS4, CS4, CS4, D4, E4, E4, D4, CS4, B3},
+	{8,   8,  4,  2,   8,   8,  4,  2,  8,   8,   4,  8, 2,  8,   8,   4,   4,   4,   8,  8,  2,  4,   8,  8,  4,  4,   4,  8,  8,   4,   4,   4,  4,  8,  8,  8,   2},
+	{1,   2,  3,  5,   1,   2,  3,  5,  1,   2,   3,  1, 1,  1,   1,   1,   1,   1,   1,  1,  1,  1,   1,  1,  1,  1,   1,  1,  1,   1,   1,   1,  1,  1,  1,  1,   1}
+};
 
 void setup() {
   pinMode(speakerPin, OUTPUT);
@@ -133,12 +151,18 @@ void playSong(int melody[], int duration[], int count, int led[]) {
 }
 
 void loop() {
-  playSong(song1[0], song1[1], sizeof(song1[0])/2, song1[2]);
-  delay(500);
-  playSong(el[0], el[1], sizeof(el[0])/2, el[2]);
-  delay(500);
-  playSong(melody2[0], melody2[1], sizeof(melody2[0])/2, melody2[2]); //елочка
-  delay(500);
-  // playSong(melody3[0], melody3[1], sizeof(melody3[0])/2, melody3[2]);
+  // playSong(song1[0], song1[1], sizeof(song1[0])/2, song1[2]);
+  // delay(600);
+  // playSong(el1[0], el1[1], sizeof(el1[0])/2, el1[2]);
+  // delay(100);
+  // playSong(el2[0], el2[1], sizeof(el2[0])/2, el2[2]);
+  // playSong(knz1[0], knz1[1], sizeof(knz1[0])/2, knz1[2]);
+  // playSong(knz2[0], knz2[1], sizeof(knz2[0])/2, knz2[2]);
+  playSong(abba1[0], abba1[1], sizeof(abba1[0])/2, abba1[2]);
+  delay(600);
+
+
+
+
 	delay(400000);
 }
