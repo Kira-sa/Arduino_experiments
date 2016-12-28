@@ -155,14 +155,13 @@ int knz2[3][13] = {
 int abba1[3][37] = {
   {CS4, D4, E4, CS5, CS4, D4, E4, B4, CS4, DS4, F4, 0, A4, GS4, FS4, FS4, GS4, FS4, E4, E4, E4, FS4, E4, E4, E4, FS4, E4, D4, CS4, CS4, CS4, D4, E4, E4, D4, CS4, B3},
   {8,   8,  4,  2,   8,   8,  4,  2,  8,   8,   4,  8, 2,  8,   8,   4,   4,   4,   8,  8,  2,  4,   8,  8,  4,  4,   4,  8,  8,   4,   4,   4,  4,  8,  8,  8,   2},
-  {1,   2,  3,  5,   1,   2,  3,  5,  1,   2,   3,  1, 1,  1,   1,   1,   1,   1,   1,  1,  1,  1,   1,  1,  1,  1,   1,  1,  1,   1,   1,   1,  1,  1,  1,  1,   1}
+  {1,   2,  3,  5,   1,   2,  3,  5,  1,   2,   3,  1, 4,  3,   2,   2,   3,   2,   1,  1,  1,  4,   3,  3,  3,  4,   3,  2,  1,   1,   1,   2,  3,  3,  2,  1,   1}
 };
 
 int win[3][3] = {{A5, A5, A5}, {4, 4, 4}, {1, 3, 5}};
 int lose[3][3] = {{D2, D2, D2}, {4, 4, 4}, {5, 3, 1}};
 
 int difficulty = 1;
-const char* s_difficulty[] = {"Demo", "Normal", "Hard"};
 //0 - demo
 //1 - normal
 //2 - hard
@@ -197,45 +196,61 @@ byte fullCube[8] = {
 };
 
 byte elk1[8] = {
-  B00001,
-  B00001,
-  B00011,
-  B00001,
-  B00011,
-  B00111,
-  B00111,
-  B01111
-};
-byte elk2[8] = {
-  B10000,
-  B10000,
-  B10000,
-  B11000,
-  B10000,
-  B11000,
-  B11100,
-  B11110
-};
-byte elk3[8] = {
-  B00011,
-  B00111,
-  B01111,
+  B00100,
+  B00100,
+  B01110,
+  B00100,
+  B01110,
   B11111,
-  B11111,
-  B00011,
-  B00000,
+  B00100,
   B00000
 };
-byte elk4[8] = {
-  B11000,
-  B11100,
-  B11110,
-  B11111,
-  B11111,
-  B11000,
-  B00000,
-  B00000
+
+byte hint0[8] = {
+  B10000,
+  B10000,
+  B10000,
+  B10000,
+  B10000
 };
+byte hint1[5][8] = {
+  {
+    B00000,
+    B10000,
+    B10000,
+    B10000,
+    B10000,
+  },
+  {
+    B10000,
+    B00000,
+    B10000,
+    B10000,
+    B10000,
+  },
+  {
+    B10000,
+    B10000,
+    B00000,
+    B10000,
+    B10000,
+  },
+  {
+    B10000,
+    B10000,
+    B10000,
+    B00000,
+    B10000,
+  },
+  {
+    B10000,
+    B10000,
+    B10000,
+    B10000,
+    B00000,
+  }
+};
+
 
 void setup() {
   // Serial.begin(9600); //debug
@@ -298,8 +313,8 @@ int waitButton() {
 }
 
 void showHint(int answer) {
-  lcd.createChar(0, B00001);
-  lcd.setCursor(15 + answer, 0);
+  lcd.createChar(0, hint1[answer]);
+  lcd.setCursor(0, 3);
   lcd.write(byte(0));
 }
 
@@ -310,8 +325,8 @@ int checkAnswer(int melody[], int songNumber[], int songLen) {
 
   for (int i = 0; i < songLen; i++) {
     int answerKey = songNumber[i] - 1;
-    int button = waitButton();
     showHint(answerKey);
+    int button = waitButton();
     // Serial.print("song len = ");
     // Serial.println(songLen);
     // Serial.print("answer = ");
@@ -351,6 +366,7 @@ void giveCandy() {
 }
 
 void showProgress() {
+  const char* s_difficulty[] = {"Demo", "Normal", "Hard"};
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print(s_difficulty[difficulty]);
@@ -381,11 +397,18 @@ void showLose() {
 int playDemo() {
   showProgress();
 
-  // Serial.println("start play song1");
-  // Serial.println(sizeof(song1[0])/2);
+  int randomSong[3][5] = {
+    {0, 0, 0, 0, 0},
+    {4, 4, 4, 4, 4},
+    {0, 0, 0, 0, 0}
+  };
+  for (int i = 0; i < 5; i++) {
+    randomSong[0][i] = random(C4, C5);
+    randomSong[2][i] = random(1, 6);
+  }
 
-  playSong(song1[0], song1[1], sizeof(song1[0])/2, song1[2]);
-  int result = checkAnswer(song1[0] ,song1[2], sizeof(song1[0]) / 2);
+  playSong(randomSong[0], randomSong[1], sizeof(randomSong[0])/2, randomSong[2]);
+  int result = checkAnswer(randomSong[0] ,randomSong[2], sizeof(randomSong[0]) / 2);
   return result;
 }
 
@@ -446,19 +469,16 @@ int playHard() {
 int playAnimation() {
   lcd.clear();
   // lcd.setCursor(0, 0);
-  // lcd.print("Some cute animation"); 
-  lcd.createChar(0, elk1);
-  lcd.setCursor(5, 2);
-  lcd.write(byte(0));
-  lcd.createChar(1, elk2);
-  lcd.setCursor(6, 2);
-  lcd.write(byte(1));
-  lcd.createChar(2, elk3);
-  lcd.setCursor(5, 3);
-  lcd.write(byte(2));
-  lcd.createChar(3, elk4);
-  lcd.setCursor(6, 3);
-  lcd.write(byte(3));
+  // lcd.print("Some cute animation");
+  for(int i = 0; i < 20; i++) {
+    lcd.setCursor(random(20), random(4));
+    lcd.print("*");
+  } 
+  for(int i = 0; i < 30; i++) {
+    lcd.createChar(0, elk1);
+    lcd.setCursor(random(20), random(4));
+    lcd.write(byte(0));
+  } 
 
   lcd.setCursor(9, 1);
   lcd.print("2017"); 
@@ -482,6 +502,13 @@ void playGame() {
     case 3:
       result = playAnimation();
       break;
+  }
+
+  for(int i = 0; i < 5; i++) {
+    digitalWrite(led_1Pin + i, HIGH);
+    delay(200);
+    digitalWrite(led_1Pin + i, LOW);
+    delay(200);
   }
 
   if (result > 0) {
@@ -521,7 +548,7 @@ void showStartScreen() {
 }
 
 void updateLvl() {
-  const char* s[] = {"Demo", "Norm", "Hard", "Img"};
+  const char* s[] = {"Demo", "Norm", "Hard", "Img "};
 
   for (int i = 0; i < 4; i++) {
     if (i == difficulty) {
