@@ -206,48 +206,51 @@ byte elk1[8] = {
   B00000
 };
 
-byte hint0[8] = {
-  B10000,
-  B10000,
-  B10000,
-  B10000,
-  B10000
-};
 byte hint1[5][8] = {
   {
-    B00000,
+    B01110,
+    B10001,
+    B10001,
+    B11110,
     B10000,
     B10000,
-    B10000,
-    B10000,
+    B10000
   },
   {
+    B11110,
+    B00001,
+    B10001,
+    B11110,
     B10000,
-    B00000,
     B10000,
-    B10000,
-    B10000,
+    B10000
   },
   {
+    B11110,
+    B10001,
+    B00001,
+    B11110,
     B10000,
     B10000,
-    B00000,
-    B10000,
-    B10000,
+    B10000
   },
   {
+    B11110,
+    B10001,
+    B10001,
+    B11110,
     B10000,
     B10000,
-    B10000,
-    B00000,
-    B10000,
+    B00000
   },
   {
+    B01110,
+    B10001,
+    B10001,
+    B11110,
     B10000,
     B10000,
-    B10000,
-    B10000,
-    B00000,
+    B00000
   }
 };
 
@@ -314,23 +317,19 @@ int waitButton() {
 
 void showHint(int answer) {
   lcd.createChar(0, hint1[answer]);
-  lcd.setCursor(0, 3);
+  lcd.setCursor(0, 2);
   lcd.write(byte(0));
 }
 
 int checkAnswer(int melody[], int songNumber[], int songLen) {
-  // Serial.println("checking answer");
   int result = 0;
   int completed = 0;
+  ledLine();
 
   for (int i = 0; i < songLen; i++) {
     int answerKey = songNumber[i] - 1;
     showHint(answerKey);
     int button = waitButton();
-    // Serial.print("song len = ");
-    // Serial.println(songLen);
-    // Serial.print("answer = ");
-    // Serial.println(answerKey);
 
     if(button == answerKey) {
       completed++;
@@ -366,7 +365,7 @@ void giveCandy() {
 }
 
 void showProgress() {
-  const char* s_difficulty[] = {"Demo", "Normal", "Hard"};
+  const char* s_difficulty[] = {"Rand", "Normal", "Hard"};
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print(s_difficulty[difficulty]);
@@ -397,12 +396,12 @@ void showLose() {
 int playDemo() {
   showProgress();
 
-  int randomSong[3][5] = {
-    {0, 0, 0, 0, 0},
-    {4, 4, 4, 4, 4},
-    {0, 0, 0, 0, 0}
+  int randomSong[3][6] = {
+    {0, 0, 0, 0, 0, 0},
+    {4, 4, 4, 4, 4, 4},
+    {0, 0, 0, 0, 0, 0}
   };
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 6; i++) {
     randomSong[0][i] = random(C4, C5);
     randomSong[2][i] = random(1, 6);
   }
@@ -468,8 +467,7 @@ int playHard() {
 
 int playAnimation() {
   lcd.clear();
-  // lcd.setCursor(0, 0);
-  // lcd.print("Some cute animation");
+
   for(int i = 0; i < 20; i++) {
     lcd.setCursor(random(20), random(4));
     lcd.print("*");
@@ -485,6 +483,15 @@ int playAnimation() {
 
   delay(10000);
   return 1;
+}
+
+void ledLine() {
+  for(int i = 0; i < 5; i++) {
+    digitalWrite(led_1Pin + i, HIGH);
+    delay(150);
+    digitalWrite(led_1Pin + i, LOW);
+    delay(100);
+  }
 }
 
 void playGame() {
@@ -504,16 +511,10 @@ void playGame() {
       break;
   }
 
-  for(int i = 0; i < 5; i++) {
-    digitalWrite(led_1Pin + i, HIGH);
-    delay(200);
-    digitalWrite(led_1Pin + i, LOW);
-    delay(200);
-  }
-
   if (result > 0) {
     showWin();
     // Serial.println("You WIN!");
+    if (difficulty==0) difficulty++;
     playSong(win[0], win[1], sizeof(win[0])/2, win[2]); // играем победную мелодию
     for (int i = 0; i < difficulty; i++){
       if (difficulty > 2 ) break;
@@ -548,7 +549,7 @@ void showStartScreen() {
 }
 
 void updateLvl() {
-  const char* s[] = {"Demo", "Norm", "Hard", "Img "};
+  const char* s[] = {"Rand", "Norm", "Hard", "Img "};
 
   for (int i = 0; i < 4; i++) {
     if (i == difficulty) {
