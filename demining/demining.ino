@@ -4,29 +4,38 @@
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
 #include <Servo.h>
+#include <Key.h>
+#include <Keypad.h>
 
 Servo myservo;
 LiquidCrystal_I2C lcd(0x27,20,4);
 
-//pins
-#define Btn_1Pin   7
-#define Btn_2Pin   8
-#define Btn_3Pin   9
-#define Btn_4Pin   10
-#define Btn_5Pin   11 //start game pin?
+//2-7 pins reserved for keypad
 #define speakerPin 12
 #define servPin    13
-
-//data
 #define keyLen 6
 
 int key[keyLen] = {1, 2, 3, 4, 5, 6};
+unsigned long previousMills = 0;
+unsigned long startTime = 0;
+unsigned long elapsedTime = 0;
+unsigned long interval = 1000;
+int t_minutes = 59;
+int t_seconds = 59;
 
-//показ оставшегося времени до детонации на дисплее,
-//ввод ключа
+const byte ROWS = 3;
+const byte COLS = 3;
+char hexaKeys[ROWS][COLS] = {
+  {'1', '2', '3'},
+  {'4', '5', '6'},
+  {'7', '8', '9'}
+};
+byte rowPins[ROWS] = {4, 3, 2};
+byte colPins[COLS] = {5, 6, 7};
+Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
+
 //сервик отпускает ключ если всё правильно
 //пищалка срабатывает на нажатия кнопок, победу/поражение
-
 
 void setup() {
   Serial.begin(9600); //debug
@@ -47,61 +56,84 @@ void setup() {
 }
 
 void loop() {
-  //ожидание нажатия кнопки, переписать для использования матрицы кнопок
-  int btn1 = digitalRead(Btn_1Pin);
-  int btn2 = digitalRead(Btn_2Pin);
-  int btn3 = digitalRead(Btn_3Pin);
-  int btn4 = digitalRead(Btn_4Pin);
-  int btn5 = digitalRead(Btn_5Pin);
-  int btn = 0;
-  if(btn1 == HIGH) {
-    btn = 1;
+  int btn = customKeypad.getKey();
+  if (btn) {
+    switch(btn){
+      case 1:
+        Serial.println("start new game");
+        playGame();
+        break;
+      //
+      default:
+        Serial.println("unknown command");
+    }
   }
-
-  //обработка нажатия 
-  switch(btn):
-    case 1:
-      Serial.println("start new game");
-      playGame();
-      break;
-    default:
-      Serial.println("unknown command");
 }
 
 void showStartScreen() {
-  //todo: добавить анимацию многоточия
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("WELCOME!...");
 }
+void showTimerScreen() {
+  lcd.clear();
+  showUpdatedTimer();
+  lcd.setCursor(3, 0);
+  lcd.print("pass:");
+}
+void showUpdatedTimer() {
+  lcd.setCursor(0, 4);
+  lcd.print(t_minutes);
+  lcd.setCursor(0, 6);
+  lcd.print(":");
+  lcd.setCursor(0, 7);
+  lcd.print(t_seconds);
+}
+
+void gameOver() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Game Over");
+}
+
+void changeTimer() {
+  unsigned  long now = millis();
+  if((now - startTime) >= interval) {
+    startTime = now;
+    if(t_seconds > 0)
+      t_seconds--;
+    else {
+      t_minutes--;
+      t_seconds = 59;
+    }
+    showUpdatedTimer();
+    if ((t_minutes<=0)&&(t_seconds<=0))
+      gameOver();
+  }
+}
 
 void playGame() {
   Serial.println("play game");
-  //todo: сделать здесь что-нибудь
-  //запуск таймера
-  //обновление экрана: отображение таймера и строки для ввода пароля
+  startTime = millis();
   //ожидание нажатия кнопок для ввода/удаления/подтверждения введенного пароля разблокировки
   //при правильном пароле - showEndGame(), при неправильном продолжаем играть(?)/уменьшение количества попыток
-  int btn = 0;
-  switch(btn):
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-    case 6;
-    case 7:
-    case 8:
-    case 9:
-    case 11: //OK
-      break;
-    case 12: //CLEAR
-      break;
-    default:
-      Serial.println("unknown command");
-  
-}
-
-int playRound() {
-  //todo: игровой раунд
+  char pass[keyLen] = {0};
+  int count = 0;
+  for(;;) {
+    changeTimer();
+    int btn = 0; //wait button
+    if (btn < 10) {
+      //todo: обновить экран, показать введенную цифру
+      pass[count] = btn;
+      count++;
+    }
+    if(btn == 11) {
+      //ok?
+    }
+    if(btn == 12) { // сброс введенной последовательности
+      count = 0;
+      for(int i = 0; i < keyLen; i++)
+        pass[i] = 0;
+    }
+  }
 }
