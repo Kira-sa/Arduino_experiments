@@ -15,7 +15,7 @@ LiquidCrystal_I2C lcd(0x27,20,4);
 //#define servPin    13
 #define keyLen 6
 
-int key[keyLen] = {1, 2, 3, 4, 5, 6};
+char key[keyLen] = "12345";
 unsigned long previousMills = 0;
 unsigned long startTime = 0;
 unsigned long elapsedTime = 0;
@@ -24,6 +24,8 @@ int t_minutes = 59;
 int t_seconds = 59;
 int stage = 0;
 bool updateScreen = false;
+char pass[keyLen] = {0};
+int passC = 0;
 
 // stages:
 // 0 - start screen with timer
@@ -62,7 +64,7 @@ void loop() {
   if (btn) {
     Serial.println(btn);
     Serial.println("Start new game");
-    int game = playGame();
+    playGame();
   }
 }
 
@@ -71,12 +73,14 @@ void showStartScreen() {
   lcd.setCursor(0, 0);
   lcd.print("WELCOME!...");
 }
+
 void showTimerScreen() {
   lcd.clear();
   showUpdatedTimer();
   lcd.setCursor(3, 0);
   lcd.print("pass:");
 }
+
 void showUpdatedTimer() {
   lcd.setCursor((t_minutes > 9) ? 7 : 8, 1);
   lcd.print(t_minutes);
@@ -109,6 +113,21 @@ int changeTimer() {
       return 1;
   }
   return 0;
+}
+
+void clearPassword() {
+  for(int i = 0; i < keyLen; i++) {
+    pass[i] = {0};
+  }
+  showEmptyPass();
+}
+
+bool checkPassword() {
+  for(int i = 0; i < keyLen; i++) {
+    if (pass[i] != key[i])
+      return false;
+  }
+  return true;
 }
 
 void showMainScreen() {
@@ -154,24 +173,36 @@ void showEditTimerScreen() {
   lcd.print("Error: No access");
 }
 
-void showDisableScreen() {
-  lcd.clear();
-  // set timer on screen
-  lcd.setCursor(0, 2);
-  lcd.print("PASS:");
+void showUpdatedPassword() { //перерисовать ячейки с паролем
+  lcd.setCursor(5, 2);
+  lcd.print(pass);
 }
 
-int playGame() {
+void showEmptyPass() {
+  lcd.setCursor(5, 2);
+  lcd.print("        ");
+}
+
+void showPasswordScreen() {
+  lcd.clear();
+  lcd.setCursor(0, 2);
+  lcd.print("PASS:");
+  lcd.setCursor(12, 3);
+  lcd.print("9:CLEAR");
+  showUpdatedPassword();
+}
+
+void playGame() {
   Serial.println("play game");
   startTime = millis();
   showMainScreen();
-  char pass[keyLen] = {0};
+  int passC = 0;
   int count = 0;
   for(;;) {
     int timeCounter = changeTimer();
     if(timeCounter > 0) {
       gameOver();
-      return 0;
+      return;
     }
     char btn = customKeypad.getKey();
     if (btn!=0){
@@ -179,37 +210,30 @@ int playGame() {
       switch(stage) {
         case 0:// main screen
           if (btn == '1') {
-            Serial.println("from main screen to menu");
             stage = 1;
             updateScreen = true;
           } 
           else if (btn == '3') {
-            Serial.println("from main screen to help");
             stage = 2;
             updateScreen = true;
           }
-          else 
-            Serial.println("unknown");
         break;    
         case 1:// menu
-          if (btn == '1') {
+          if (btn == '1') {// show change timer screen
             stage = 3;
             updateScreen = true;
-            // show change timer screen
           } 
-          else if (btn == '2') {
+          else if (btn == '2') {// show disable bomb
             stage = 4;
             updateScreen = true;
-            // show disable bomb
           }
-          else if (btn == '3') {
+          else if (btn == '3') {//return to main screen
             stage = 0;
             updateScreen = true;
-            //return to main screen
           }
         break;
         case 2:// help screen
-          if (btn == '1') {
+          if (btn != 0) {
             stage = 0;
             updateScreen = true;
           } 
@@ -220,14 +244,28 @@ int playGame() {
             updateScreen = true;
           }   
           break;
-        case 4:// disable 
-          if (btn == '9') {
-            stage = 0;
-            updateScreen = true;
+        case 4:// disable timer
+          if (passC <= keyLen) {
+            if (btn == '9') {
+              clearPassword();
+              stage = 0;
+              updateScreen = true;
+            }
+            else {
+              pass[passC] = btn;
+              passC++;
+              showUpdatedPassword();
+              if(passC == keyLen-1) {
+                // проверить пароль на валидность, если правильный вывести победу и выйти из цикла(совсем), иначе - сброс пароля и по новой
+                Serial.print("result: ");
+                Serial.println(pass);
+                clearPassword();
+                passC = 0;
+              }
+              Serial.print("passC = ");
+              Serial.println(passC);
+            }  
           }
-          else {
-            // перейти к проверке ввода пароля, 9 -> clear, когда поле пароля пусто 9 -> back
-          }  
         break;
         default:
           Serial.println("unknown stage value");
@@ -235,7 +273,6 @@ int playGame() {
       }
     }
     if (updateScreen) {
-      Serial.println("updateScreen == true");
       switch(stage) {
         case 0:
           showMainScreen();
@@ -250,7 +287,8 @@ int playGame() {
           showEditTimerScreen();
           break;
         case 4:
-          showDisableScreen();
+          // showDisableScreen();
+          showPasswordScreen();
           break;
         default:
           Serial.println("changing screen on stage error ");
@@ -261,7 +299,7 @@ int playGame() {
     }
     //
   }
-  return 1;
+  return;
 }
 // stages:
 // 0 - start screen with timer
@@ -269,10 +307,5 @@ int playGame() {
 // 2 - help screen
 // 3 - edit timer
 // 4 - disable 
+// 5 - disable pass input
 
-        // char btn = customKeypad.getKey();
-        // Serial.println(btn);
-        // if (btn == 1) {
-        // } 
-        // else if (btn == 2) {
-        // }
