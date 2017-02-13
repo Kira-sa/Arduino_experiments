@@ -19,11 +19,14 @@ char key[keyLen] = "12345";
 unsigned long previousMills = 0;
 unsigned long startTime = 0;
 unsigned long elapsedTime = 0;
-unsigned long interval = 1000;
+// unsigned long interval = 1000;
+unsigned long interval = 300;
+
 int t_minutes = 59;
 int t_seconds = 59;
 int stage = 0;
 bool updateScreen = false;
+bool isDisabled = false;
 char pass[keyLen] = {0};
 int passC = 0;
 
@@ -61,7 +64,7 @@ void setup() {
 
 void loop() {
   char btn = customKeypad.getKey();
-  if (btn) {
+  if (btn && !isDisabled) {
     Serial.println(btn);
     Serial.println("Start new game");
     playGame();
@@ -82,6 +85,8 @@ void showTimerScreen() {
 }
 
 void showUpdatedTimer() {
+  lcd.setCursor(7, 1);
+  lcd.print("        ");
   lcd.setCursor((t_minutes > 9) ? 7 : 8, 1);
   lcd.print(t_minutes);
   lcd.setCursor(9, 1);
@@ -192,6 +197,12 @@ void showPasswordScreen() {
   showUpdatedPassword();
 }
 
+void showWinScreen() {
+  lcd.clear();
+  lcd.setCursor(1, 1);
+  lcd.print("object deactivated");
+}
+
 void playGame() {
   Serial.println("play game");
   startTime = millis();
@@ -256,7 +267,14 @@ void playGame() {
               passC++;
               showUpdatedPassword();
               if(passC == keyLen-1) {
-                // проверить пароль на валидность, если правильный вывести победу и выйти из цикла(совсем), иначе - сброс пароля и по новой
+                if(checkPassword()) {//если правильный вывести победу и выйти из цикла(совсем), иначе - сброс пароля и по новой
+                  delay(500);
+                  stage = 0;
+                  clearPassword();
+                  showWinScreen();
+                  isDisabled = true;
+                  return;
+                }
                 Serial.print("result: ");
                 Serial.println(pass);
                 clearPassword();
