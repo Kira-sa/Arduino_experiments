@@ -15,6 +15,25 @@ LiquidCrystal_I2C lcd(0x27,20,4);
 //#define servPin    13
 #define keyLen 9
 
+#define C4  262
+#define CS4 277
+#define D4  294
+#define DS4 311
+#define E4  330
+#define F4  349
+#define FS4 370
+#define G4  392
+#define GS4 415
+#define A4  440
+#define AS4 466
+#define B4  494
+#define C5  523
+
+int win[3][3] = {{A5, A5, A5}, {4, 4, 4}};
+int lose[3][3] = {{D2, D2, D2}, {4, 4, 4}};
+// playSong(win[0], win[1]); // играем победную мелодию
+// playSong(lose[0], lose[1]);//играем проигрышную мелодию
+
 char key[keyLen] = "31421385";
 unsigned long previousMills = 0;
 unsigned long startTime = 0;
@@ -27,6 +46,7 @@ int stage = 0;
 bool updateScreen = false;
 bool isDisabled = false;
 bool penalty = false;
+bool sound = true;
 char pass[keyLen] = {0};
 int passC = 0;
 
@@ -42,7 +62,6 @@ byte colPins[COLS] = {5, 6, 7};
 Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 
 //сервик отпускает ключ если всё правильно
-//пищалка срабатывает на нажатия кнопок, победу/поражение
 
 void setup() {
   Serial.begin(9600); //debug
@@ -60,6 +79,18 @@ void loop() {
     Serial.println("Start new game");
     playGame();
   }
+}
+
+void playSong(int melody[], int duration[], int count) {
+  for (int i = 0; i < count; i++){
+    playNote(melody[i], duration[i]);
+  }
+}
+
+void playNote(int note, int duration) {
+  tone(speakerPin, note, 1000 / duration);
+  delay((1000 / duration) * 1.3);
+  noTone(speakerPin);
 }
 
 void shStart() {
