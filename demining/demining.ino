@@ -29,18 +29,18 @@ LiquidCrystal_I2C lcd(0x27,20,4);
 #define B4  494
 #define C5  523
 
-int win[3][3] = {{A5, A5, A5}, {4, 4, 4}};
-int lose[3][3] = {{D2, D2, D2}, {4, 4, 4}};
-// playSong(win[0], win[1]); // играем победную мелодию
-// playSong(lose[0], lose[1]);//играем проигрышную мелодию
+int win[3][3] = {{C4, E4, G4}, {4, 4, 4}};
+int lose[3][3] = {{C4, C4, C4}, {4, 4, 4}};
+// playSong(win[0], win[1], sizeof(win[0])/2); // играем победную мелодию
+// playSong(lose[0], lose[1], sizeof(lose[0])/2);//играем проигрышную мелодию
 
-char key[keyLen] = "31421385";
+char key[keyLen] = "34176855";
 unsigned long previousMills = 0;
 unsigned long startTime = 0;
 unsigned long elapsedTime = 0;
-// unsigned long interval = 1000;
-unsigned long interval = 300;
-int t_minutes = 59;
+unsigned long interval = 1000;
+// unsigned long interval = 300;
+int t_minutes = 0;
 int t_seconds = 59;
 int stage = 0;
 bool updateScreen = false;
@@ -108,6 +108,8 @@ void shUpdatedTimer() {
   lcd.print(":");
   lcd.setCursor(10, 1);
   lcd.print(t_seconds);
+  if(sound) 
+    playNote(C5, 8); // every second beep :)
 }
 
 void shGameOver() {
@@ -143,8 +145,11 @@ void clearPassword() {
 
 bool checkPassword() {
   for(int i = 0; i < keyLen; i++) {
-    if (pass[i] != key[i])
+    if (pass[i] != key[i]) {
+      if(sound)
+        playSong(lose[0], lose[1], sizeof(lose[0])/2); //todo
       return false;
+    }
   }
   return true;
 }
@@ -179,16 +184,18 @@ void shHelp() {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("HELP");
-  lcd.setCursor(0, 1);
-  lcd.print("Please read manual :)");
+  lcd.setCursor(0, 2);
+  lcd.print("To disable bomb");
+  lcd.setCursor(0, 3);
+  lcd.print("Input right password");
 }
 
 void shEditTimer() {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("EDIT");
-  lcd.setCursor(0, 1);
-  lcd.print("Error: No access");
+  lcd.setCursor(0, 2);
+  lcd.print("Error: Access denied");
 }
 
 void shUpdatedPassword() { //перерисовать ячейки с паролем
@@ -214,6 +221,8 @@ void shWin() {
   lcd.clear();
   lcd.setCursor(1, 1);
   lcd.print("object deactivated");
+  if(sound)
+    playSong(win[0], win[1], sizeof(win[0])/2);
 }
 
 void playGame() {
