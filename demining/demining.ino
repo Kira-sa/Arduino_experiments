@@ -3,16 +3,16 @@
 
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
-//#include <Servo.h>
+#include <Servo.h>
 #include <Key.h>
 #include <Keypad.h>
 
-//Servo myservo;
+Servo myservo;
 LiquidCrystal_I2C lcd(0x27,20,4);
 
 //2-7 pins reserved for keypad
 #define speakerPin 12
-//#define servPin    13
+#define servPin    13
 #define keyLen 9
 
 #define C4  262
@@ -40,7 +40,7 @@ unsigned long startTime = 0;
 unsigned long elapsedTime = 0;
 unsigned long interval = 1000;
 // unsigned long interval = 300;
-int t_minutes = 0;
+int t_minutes = 44;
 int t_seconds = 59;
 int stage = 0;
 bool updateScreen = false;
@@ -79,6 +79,19 @@ void loop() {
     Serial.println("Start new game");
     playGame();
   }
+}
+
+void servoPing() {
+  myservo.attach(servPin);
+  for(int pos = 0; pos < 100; pos += 1) { //от 0 до 180 градусов с шагом в 1 градус 
+    myservo.write(pos);
+    delay(20);
+  } 
+  for(int pos = 100; pos >= 1; pos -= 1) {
+    myservo.write(pos);
+    delay(20);
+  }
+  myservo.detach();  
 }
 
 void playSong(int melody[], int duration[], int count) {
@@ -137,6 +150,7 @@ int changeTimer() {
 }
 
 void clearPassword() {
+  // servoPing();
   for(int i = 0; i < keyLen; i++) {
     pass[i] = {0};
   }
@@ -213,11 +227,12 @@ void shPassword() {
   lcd.setCursor(0, 2);
   lcd.print("PASS:");
   lcd.setCursor(12, 3);
-  lcd.print("9:CLEAR");
+  lcd.print("9:RETURN");
   shUpdatedPassword();
 }
 
 void shWin() {
+  servoPing();
   lcd.clear();
   lcd.setCursor(1, 1);
   lcd.print("object deactivated");
