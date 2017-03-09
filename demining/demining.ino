@@ -150,7 +150,6 @@ int changeTimer() {
 }
 
 void clearPassword() {
-  // servoPing();
   for(int i = 0; i < keyLen; i++) {
     pass[i] = {0};
   }
@@ -232,7 +231,7 @@ void shPassword() {
 }
 
 void shWin() {
-  servoPing();
+//  servoPing();
   lcd.clear();
   lcd.setCursor(1, 1);
   lcd.print("object deactivated");
@@ -296,6 +295,7 @@ void playGame() {
           if (passC <= keyLen) {
             if (btn == '9') {
               clearPassword();
+              passC = 0;
               stage = 0;
               updateScreen = true;
             }
@@ -314,8 +314,8 @@ void playGame() {
                 }
                 else if(penalty)
                   t_minutes--;
-                Serial.print("result: ");
-                Serial.println(pass);
+                // Serial.print("result: ");
+                // Serial.println(pass);
                 clearPassword();
                 passC = 0;
               }
